@@ -1,0 +1,15 @@
+{
+  "name": "dream-binder",
+  "private": true,
+  "version": "0.1.0",
+  "type": "module",
+  "description": "A personal Pokémon card dream binder — browse EN & JP sets, collect cards into an album, see prices in SGD.",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview"
+  },
+  "devDependencies": {
+    "vite": "^8.3.1"
+  }
+}
