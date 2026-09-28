@@ -2,7 +2,7 @@
 // text nodes / attributes (never innerHTML), so card names can't inject markup.
 
 import * as album from './album.js';
-import { cardImg } from './api.js';
+import { imageSources } from './images.js';
 
 export function h(tag, props, ...children) {
   const el = document.createElement(tag);
@@ -53,6 +53,9 @@ export function icon(name, size = 20) {
   return svg;
 }
 
+/** Count of in-app navigations, so a Back link never leaves the app. */
+export const navState = { depth: 0 };
+
 export const LANG_LABEL = { en: 'EN', ja: 'JP' };
 
 export function fmtDate(iso, opts = { day: 'numeric', month: 'short', year: 'numeric' }) {
@@ -78,22 +81,37 @@ export function placeholder({ name, number, setName, lang }) {
   );
 }
 
-export function cardFace(card, { quality = 'low', eager = false } = {}) {
+export function cardFace(card, { quality = 'low', eager = false, onSource } = {}) {
   const face = h('div', { class: 'card-face' });
-  const src = cardImg(card.image, quality);
-  if (src) {
+  const sources = imageSources(card, quality);
+  const showPlaceholder = () => {
+    face.querySelector('img')?.remove();
+    face.prepend(placeholder(card));
+    face.classList.add('loaded');
+    face.dataset.source = 'none';
+    onSource?.('none');
+  };
+  if (!sources.length) {
+    showPlaceholder();
+  } else {
+    let i = 0;
     const img = h('img', {
-      src,
       alt: `${card.name} #${card.number}`,
       loading: eager ? 'eager' : 'lazy',
       decoding: 'async',
-      onload: () => face.classList.add('loaded'),
-      onerror: () => img.replaceWith(placeholder(card)),
+      onload: () => {
+        face.classList.add('loaded');
+        face.dataset.source = sources[i].source;
+        onSource?.(sources[i].source, sources[i].src);
+      },
+      onerror: () => {
+        i += 1;
+        if (i < sources.length) img.src = sources[i].src;
+        else showPlaceholder();
+      },
     });
+    img.src = sources[0].src;
     face.append(img);
-  } else {
-    face.append(placeholder(card));
-    face.classList.add('loaded');
   }
   face.append(h('span', { class: 'holo', 'aria-hidden': 'true' }));
   return face;

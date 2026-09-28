@@ -3,7 +3,8 @@ import * as album from './album.js';
 import * as prefs from './prefs.js';
 import { getCard } from './api.js';
 import { fromApiCard } from './cards.js';
-import { h, icon, LANG_LABEL, setEnrichHook } from './ui.js';
+import { h, icon, LANG_LABEL, navState, setEnrichHook } from './ui.js';
+import { cachePrice } from './price.js';
 import { setsView } from './views/sets.js';
 import { setView } from './views/set.js';
 import { cardView } from './views/card.js';
@@ -73,7 +74,11 @@ paintAlbumCount();
 // Cards pinned from a grid only have brief data — fetch the full card to fill in rarity/set.
 setEnrichHook((card) => {
   getCard(card.lang, card.id)
-    .then((full) => album.enrich(`${card.lang}:${card.id}`, fromApiCard(full, card.lang)))
+    .then((full) => {
+      const key = `${card.lang}:${card.id}`;
+      album.enrich(key, fromApiCard(full, card.lang));
+      cachePrice(key, full.pricing, card.lang);
+    })
     .catch(() => {});
 });
 
@@ -157,5 +162,5 @@ async function render() {
   }
 }
 
-window.addEventListener('hashchange', render);
+window.addEventListener('hashchange', () => { navState.depth++; render(); });
 render();

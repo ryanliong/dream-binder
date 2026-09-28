@@ -41,8 +41,8 @@ export async function setView(root, ctx) {
         ].filter(Boolean).join(' · '),
       ),
       cards.length > 0 && withImages < cards.length
-        ? h('p', { class: 'note' }, withImages === 0
-          ? 'TCGdex has no card images for this set yet, so cards show as placeholders.'
+        ? h('p', { class: 'note' }, lang === 'ja'
+          ? `TCGdex is missing ${withImages === 0 ? 'all' : cards.length - withImages} images here, so they're loaded from Limitless TCG. Any still missing show as placeholders.`
           : `${cards.length - withImages} cards have no image yet and show as placeholders.`)
         : null,
     ),
