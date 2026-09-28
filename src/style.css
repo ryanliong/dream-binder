@@ -496,3 +496,5 @@ textarea.input { min-height: 72px; resize: vertical; }
 /* Single-column grids must not grow to their widest child (long JP <select> options, price tables). */
 .detail, .detail-info, .search-form, .stack, .album-panel { grid-template-columns: minmax(0, 1fr); }
 @media (min-width: 820px) { .detail { grid-template-columns: minmax(280px, 400px) minmax(0, 1fr); } }
+.visually-hidden { position: absolute !important; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+.summary .banner p { margin: 4px 0; }
