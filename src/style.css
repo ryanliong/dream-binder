@@ -184,7 +184,8 @@ main {
   font: inherit; color: var(--ink); background: var(--surface); border: 1px solid var(--line);
   border-radius: 10px; padding: 9px 12px; min-height: 42px; width: 100%;
 }
-.select { width: auto; flex: 1 1 140px; max-width: 100%; }
+.select { width: auto; flex: 1 1 140px; max-width: 100%; min-width: 0; text-overflow: ellipsis; }
+.input { min-width: 0; }
 textarea.input { min-height: 72px; resize: vertical; }
 .btn {
   display: inline-flex; align-items: center; justify-content: center; gap: 6px;
@@ -491,3 +492,7 @@ textarea.input { min-height: 72px; resize: vertical; }
 .steps li { margin-bottom: 4px; }
 .field { display: grid; gap: 6px; }
 .field label { font-weight: 650; font-size: 0.88rem; }
+
+/* Single-column grids must not grow to their widest child (long JP <select> options, price tables). */
+.detail, .detail-info, .search-form, .stack, .album-panel { grid-template-columns: minmax(0, 1fr); }
+@media (min-width: 820px) { .detail { grid-template-columns: minmax(280px, 400px) minmax(0, 1fr); } }
