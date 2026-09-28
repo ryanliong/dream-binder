@@ -5,6 +5,7 @@ import { getCard } from './api.js';
 import { fromApiCard } from './cards.js';
 import { h, icon, LANG_LABEL, navState, setEnrichHook } from './ui.js';
 import { cachePrice } from './price.js';
+import { startSync } from './sync.js';
 import { setsView } from './views/sets.js';
 import { setView } from './views/set.js';
 import { cardView } from './views/card.js';
@@ -164,3 +165,4 @@ async function render() {
 
 window.addEventListener('hashchange', () => { navState.depth++; render(); });
 render();
+startSync();
