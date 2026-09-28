@@ -1,4 +1,4 @@
-import { getSets, getRarities, searchCards } from '../api.js';
+import { getSets, getRarities, searchCards, RARITY_PRESETS } from '../api.js';
 import { fromBrief, setIdFromCardId } from '../cards.js';
 import { h, icon, binder, cardTile, skeletonGrid, errorBox, emptyState } from '../ui.js';
 
@@ -54,7 +54,13 @@ export async function searchView(root, ctx) {
       setSel.append(...sets.value.filter((s) => s.cardCount?.total).map((s) => h('option', { value: s.id, selected: s.id === setId }, `${s.name} (${s.id})`)));
     }
     if (rarities.status === 'fulfilled') {
-      rarSel.append(...rarities.value.filter((r) => r !== 'None').map((r) => h('option', { value: r, selected: r === rarity }, r)));
+      rarSel.append(
+        h('optgroup', { label: 'Collections' },
+          Object.entries(RARITY_PRESETS).map(([v, p]) => h('option', { value: v, selected: v === rarity }, p.label))),
+        h('optgroup', { label: 'TCGdex rarity' },
+          rarities.value.filter((r) => r !== 'None').map((r) => h('option', { value: r, selected: r === rarity },
+            r === 'Full Art Trainer' ? 'Full Art Trainer (TCGdex tag — 6 cards only)' : r))),
+      );
     }
     setSel.value = setId;
     rarSel.value = rarity;
@@ -94,8 +100,9 @@ export async function searchView(root, ctx) {
     for (const c of list) {
       const sid = setIdFromCardId(c.id, c.localId);
       const card = fromBrief(c, lang, { id: sid, name: setNames.get(sid) || sid });
-      if (rarity) card.rarity = rarity; // known from the filter → enables holo shimmer
-      tiles.push(cardTile(card));
+      const preset = RARITY_PRESETS[rarity];
+      if (rarity && !preset) card.rarity = rarity; // known from the filter → enables holo shimmer
+      tiles.push(cardTile(card, preset ? { shiny: true } : undefined));
     }
     if (!tiles.length) {
       pageHost.replaceChildren(emptyState('No cards found',

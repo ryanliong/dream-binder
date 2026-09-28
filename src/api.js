@@ -121,12 +121,27 @@ export const peekSet = (lang, id) => peek(lang, `/sets/${encodeURIComponent(id)}
 export const getCard = (lang, id) => tcg(lang, `/cards/${encodeURIComponent(id)}`);
 export const getRarities = (lang) => tcg(lang, '/rarities');
 
-/** Card search. Filters are substring matches unless prefixed with "eq:". */
+/**
+ * Rarity presets that TCGdex's own rarity tags don't capture. Its "Full Art Trainer" tag
+ * covers only 6 cards (Lost Origin TG23–28); real full-art trainers are tagged
+ * Ultra Rare / Special illustration rare / Secret Rare / Hyper rare, so combine them.
+ */
+export const RARITY_PRESETS = {
+  '@fa-trainers': {
+    label: 'Full-art trainers (all eras)',
+    category: 'Trainer',
+    rarities: ['Ultra Rare', 'Special illustration rare', 'Secret Rare', 'Hyper rare', 'Mega Hyper Rare', 'Full Art Trainer'],
+  },
+};
+
+/** Card search. Filters are substring matches unless prefixed with "eq:"; "|" means OR. */
 export function searchCards(lang, { name, setId, rarity, page = 1, perPage = 60 }) {
+  const preset = RARITY_PRESETS[rarity];
   return tcg(lang, '/cards', {
     name: name || undefined,
     'set.id': setId ? `eq:${setId}` : undefined,
-    rarity: rarity ? `eq:${rarity}` : undefined,
+    category: preset ? `eq:${preset.category}` : undefined,
+    rarity: preset ? `eq:${preset.rarities.join('|')}` : rarity ? `eq:${rarity}` : undefined,
     'pagination:page': page,
     'pagination:itemsPerPage': perPage,
   });
